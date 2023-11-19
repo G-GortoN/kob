@@ -50,7 +50,7 @@ export default {
                 error(resp) {
                   data.error(resp);
                 }
-              });
+            });
         },
         getInfo(context, data) {
             $.ajax ({

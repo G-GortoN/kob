@@ -86,7 +86,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     if (to.meta.requestAuth && !store.state.user.is_login) {
-      next({ name: "user_account_login" });
+      next({name: "user_account_login"});
     } else {
       next(); 
     }
