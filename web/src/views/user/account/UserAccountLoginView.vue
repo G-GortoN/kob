@@ -12,7 +12,7 @@
                     <input v-model="password" type="password" class="form-control" id="password" placeholder="请输入密码">
                     </div>
                     <div class="error-message">{{ error_message }}</div>
-                    <button type="submit" class="btn btn-primary">提交</button>
+                    <button type="submit" class="btn btn-success">提交</button>
                 </form>
             </div>
         </div>
@@ -35,6 +35,19 @@ export default {
         let password = ref('');
         let error_message = ref('');
 
+        const jwt_token = localStorage.getItem("jwt_token");
+        if (jwt_token) {
+            store.commit("updateToken", jwt_token);
+            store.dispatch("getInfo", {
+                success() {
+                    router.push({ name: "home" });
+                },
+                error() {
+
+                }
+            })
+        }
+
         const login = () => {
             error_message.value = "";
             store.dispatch("login", {
@@ -44,7 +57,6 @@ export default {
                     store.dispatch("getInfo", {
                         success() {
                             router.push({ name: 'home' });
-                            console.log(store.state.user);
                         }
                     }) 
                 },

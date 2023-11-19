@@ -14,6 +14,6 @@ public class InfoServiceController {
 
     @GetMapping("/user/account/info/")
     public Map<String, String> getInfo() {
-        return infoService.getinfo();
+        return infoService.getInfo();
     }
 }

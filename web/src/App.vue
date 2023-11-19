@@ -14,38 +14,10 @@ export default {
     NavBar
   },
   setup() {
-    // $.ajax ({
-    //   url: "http://127.0.0.1:3000/user/account/token/",
-    //   type: "post",
-    //   data: {
-    //     username: 'a',
-    //     password: 'pa',
-    //   },
-    //   success(resp) {
-    //     console.log(resp);
-    //   },
-    //   error(resp) {
-    //     console.log(resp);
-    //   }
-    // });
 
 
 
-    // $.ajax ({
-    //   url: "http://127.0.0.1:3000/user/account/register/",
-    //   type: "post",
-    //   data: {
-    //     username: "root2",
-    //     password: "654321",
-    //     confirmedPassword: "654321",
-    //   },
-    //   success(resp) {
-    //     console.log(resp);
-    //   },
-    //   error(resp) {
-    //     console.log(resp);
-    //   }
-    // })
+
   }
 }
 </script>
