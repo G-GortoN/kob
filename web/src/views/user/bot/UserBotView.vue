@@ -1,86 +1,74 @@
 <template>
-    <ContentField>
-        我的Bot
-    </ContentField>
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-body">
+                        <img :src="$store.state.user.photo" alt="" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <span style="font-size: 125%;">我的Bot</span>
+                        <button type="button" class="btn btn-success float-end">创建Bot</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="bot in bots" :key="bot.id">
+                                    <td>{{ bot.title }}</td>
+                                    <td>{{ bot.createtime }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary">修改</button>
+                                        <button type="button" class="btn btn-danger">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
-import ContentField from '../../../components/ContentField.vue'
+import { ref } from 'vue'
 import $ from 'jquery'
-import { useStore } from 'vuex';
+import { useStore } from 'vuex'
 
 export default {
-    components: {
-        ContentField
-    },
     setup() {
         const store = useStore();
-        // $.ajax({
-        //     url: "http://127.0.0.1:3000/user/bot/add/",
-        //     type: "post",
-        //     data: {
-        //         title: "Bot的标题",
-        //         description: "Bot的描述",
-        //         content: "Bot的代码",
-        //     },
-        //     headers: {
-        //         Authorization: "Bearer " + store.state.user.token,
-        //     },
-        //     success(resp) {
-        //         console.log(resp);
-        //     },
-        //     error(resp) {
-        //         console.log(resp);
-        //     }
-        // })
-        // $.ajax({
-        //     url: "http://127.0.0.1:3000/user/bot/remove/",
-        //     type: "post",
-        //     data: {
-        //         bot_id: 4,
-        //     },
-        //     headers: {
-        //         Authorization: "Bearer " + store.state.user.token,
-        //     },
-        //     success(resp) {
-        //         console.log(resp);
-        //     },
-        //     error(resp) {
-        //         console.log(resp);
-        //     }
-        // })
-        // $.ajax({
-        //     url: "http://127.0.0.1:3000/user/bot/update/",
-        //     type: "post",
-        //     data: {
-        //         bot_id: 4,
-        //         title: "改一下",
-        //         description: "再改一下",
-        //         content: "再再改一下",
-        //     },
-        //     headers: {
-        //         Authorization: "Bearer " + store.state.user.token,
-        //     },
-        //     success(resp) {
-        //         console.log(resp);
-        //     },
-        //     error(resp) {
-        //         console.log(resp);
-        //     }
-        // })
-        $.ajax({
-            url: "http://127.0.0.1:3000/user/bot/getlist/",
-            type: "get",
-            headers: {
-                Authorization: "Bearer " + store.state.user.token,
-            },
-            success(resp) {
-                console.log(resp);
-            },
-            error(resp) {
-                console.log(resp);
-            }
-        })
+        let bots = ref([]);
+
+        const refresh_bots = () => {
+            $.ajax({
+                url: "http://127.0.0.1:3000/user/bot/getlist/",
+                type: "get",
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+                    bots.value = resp;
+                }
+            })
+        }
+
+        refresh_bots();
+
+        return {
+            bots,
+        }
     }
 }
 </script>
