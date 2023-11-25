@@ -1,6 +1,9 @@
 package com.kob.backend.consumer;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.config.filter.JwtAuthenticationTokenFilter;
+import com.kob.backend.consumer.utils.Game;
 import com.kob.backend.consumer.utils.JwtAuthentication;
 import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.User;
@@ -11,17 +14,22 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.SplittableRandom;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 @ServerEndpoint("/websocket/{token}")  // 注意不要以'/'结尾
 public class WebSocketServer {
 
-    private static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
+    private static final CopyOnWriteArraySet<User> matchpool = new CopyOnWriteArraySet<>();
     private User user;
     private Session session = null;
 
     private static UserMapper userMapper;
+//    private Game game = null;
 
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
@@ -50,13 +58,55 @@ public class WebSocketServer {
         System.out.println("disconnected !");
         if (this.user != null) {
             users.remove(this.user.getId());
+            matchpool.remove(this.user);
         }
+    }
+
+    private void startMatching() {
+        matchpool.add(this.user);
+        System.out.println("start matching !");
+
+        while (matchpool.size() >= 2) {
+            Iterator<User> it = matchpool.iterator();
+            User a = it.next(), b = it.next();
+            matchpool.remove(a);
+            matchpool.remove(b);
+
+            Game game = new Game(13, 14, 20);
+            game.createGameMap();
+
+            JSONObject respA = new JSONObject();
+            respA.put("event", "start-matching");
+            respA.put("opponent_name", b.getUsername());
+            respA.put("opponent_photo", b.getPhoto());
+            respA.put("gamemap", game.getMap());
+            users.get(a.getId()).sendMessage(respA.toJSONString());
+
+            JSONObject respB = new JSONObject();
+            respB.put("event", "start-matching");
+            respB.put("opponent_name", a.getUsername());
+            respB.put("opponent_photo", a.getPhoto());
+            respB.put("gamemap", game.getMap());
+            users.get(b.getId()).sendMessage(respB.toJSONString());
+        }
+    }
+
+    private void stopMatching() {
+        matchpool.remove(this.user);
+        System.out.println("stop matching !");
     }
 
     @OnMessage
     public void onMessage(String message, Session session) {
         // 从Client接收消息
         System.out.println("received message !");
+        JSONObject data = JSON.parseObject(message);
+        String event = data.getString("event");
+        if ("start-matching".equals(event)) {
+            startMatching();
+        } else if ("stop-matching".equals(event)) {
+            stopMatching();
+        }
     }
 
     @OnError
