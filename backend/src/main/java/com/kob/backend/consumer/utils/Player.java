@@ -45,4 +45,12 @@ public class Player {
         }
         return res;
     }
+
+    public String getStepString() {
+        StringBuilder res = new StringBuilder();
+        for (int step: steps) {
+            res.append(step);
+        }
+        return res.toString();
+    }
 }
