@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Player {
     private Integer id;
+    private Integer botId;  // botId = -1表示玩家亲自操作，否则表示用AI对战
+    private String botCode;
     private Integer sx;
     private Integer sy;
     private List<Integer> steps;
