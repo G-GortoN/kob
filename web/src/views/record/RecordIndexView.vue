@@ -1,6 +1,6 @@
 <template>
     <ContentField>
-        <table class="table table-striped table-hover">
+        <table class="table table-striped table-hover" style="text-align: center;">
             <thead>
                 <tr>
                     <th>A</th>
@@ -25,7 +25,7 @@
                     <td>{{ record.result }}</td>
                     <td>{{ record.record.createtime }}</td>
                     <td>
-                        <button type="button" class="btn btn-primary">查看录像</button>
+                        <button @click="open_record_content(record.record.id)" type="button" class="btn btn-primary">查看录像</button>
                     </td>
                 </tr>
             </tbody>
@@ -38,6 +38,7 @@ import ContentField from '../../components/ContentField.vue'
 import { useStore } from 'vuex';
 import { ref } from 'vue';
 import $ from 'jquery';
+import router from '../../router/index';
 
 export default {
     components: {
@@ -47,7 +48,7 @@ export default {
         const store = useStore();
         let records = ref([]);
         let current_page = 1;
-        let total_records = 0;
+        // let total_records = 0;
 
         const pull_page = page => {
             current_page = page;
@@ -62,7 +63,7 @@ export default {
                 },
                 success(resp) {
                     records.value = resp.records;
-                    total_records.value = resp.record_count;
+                    // total_records = resp.record_count;
                 },
                 error(resp) {
                     console.log(resp);
@@ -70,10 +71,57 @@ export default {
             })
         }
 
-        pull_page(current_page);  
+        pull_page(current_page);
+
+        const stringTo2D = map => {
+            let g = [];
+            for (let i = 0, k = 0; i < 13; i++) {
+                let line = [];
+                for (let j = 0; j < 14; j++, k++) {
+                    if (map[k] === '0') {
+                        line.push(0);
+                    } else {
+                        line.push(1);
+                    }
+                }
+                g.push(line);
+            }
+            return g;
+        }
+
+        const open_record_content = recordId => {
+            for (const record of records.value) {
+                if (record.record.id === recordId) {
+                    store.commit("updateIsRecord", true);
+                    console.log(record);
+                    store.commit("updateGameMap", {
+                        map: stringTo2D(record.record.map),
+                        a_id: record.record.aid,
+                        a_sx: record.record.asx,
+                        s_sy: record.record.asy,
+                        b_id: record.record.bid,
+                        b_sx: record.record.bsx,
+                        b_sy: record.record.bsy,
+                    });
+                    store.commit("updateSteps",{
+                        a_step: record.record.asteps,
+                        b_step: record.record.bsteps,
+                    });
+                    store.commit("updateRecordLoser", record.record.record_loser);
+                    router.push({
+                        name: "record_content",
+                        params: {
+                            recordId: recordId,
+                        }
+                    })
+                    break;
+                }
+            }
+        }
 
         return {
             records,
+            open_record_content,
         }
     }
 }
